@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>CoGs - Colouful Graphs</title>
+    <link rel="icon" type="image/x-icon" href=":favicon.ico">
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
+    <script src="cogs.js"></script>
+    <link rel="stylesheet" href="cogs.css">
+</head>
+
+<body>
+    <div id="screen">
+        <div id="sidebar">
+            <div id="logobar">
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900; color: #bb4444;top:0px;position:absolute">C</span>
+                <img src="Cogs.png" width="80px" height="80px" style="position: relative;left:57px; top:0px">
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900; color: #44bb44;top:0px;position:absolute;left:138px;">G</span>
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900; color: #4444bb;top:0px;position:absolute;left:200px;">S</span>
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #000;top:30px;position:absolute;left:270px;font-weight: 500;">-
+                    Colourful Graphs</span>
+            </div>
+            <div id="sideContent">
+            <span
+                style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #000;top:30px;position:relative;left:200px;font-weight: 500;">Size:
+            </span><output id="resout"
+                style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #000;top:30px;position:relative;left:200px;font-weight: 500;"></output>
+            <input type="range" id="resolution" placeholder="What resolution?" min="2" max="30" onchange="resRun()"
+                value="2" step="2">
+            <div id="colours">
+                <div id="colour1p" style="left:25px; position: relative; top:15px;">
+                    <p style="font-size: 20px;"><span style="color:#44bb44; font-weight:600;">TRUE</span> colour:</p>
+                    <input type="color" id="colour1" 
+                        style="left: 125px; position: relative; bottom: 41px;">
+                </div>
+                <div id="colour2p" style="left:200px; position: relative; top:-71px;">
+                    <p style="font-size: 20px;"><span style="color:#bb4444; font-weight:600;">FALSE</span> colour:</p>
+                    <input type="color" id="colour2" 
+                        style="left: 130px; position: relative; bottom: 41px;">
+                </div>
+
+            </div>
+            <div id="functionBorder">
+                <spam >Y=</spam>
+                <input type="text" id="function">
+            </div>
+            <div id="GO" onclick="go()">
+                LET'S GO!
+            </div>
+        </div>
+        <div id="grid">
+            <div id="gridCells"></div>
+            <canvas id="graph">
+            </canvas>
+            <div id="coords"></div>
+            <div id="dot">
+                <p id="dotx"></p>
+            </div>
+        </div>
+        <div id="modal">
+            <span id="modalclose" onclick="document.getElementById('modal').style.display='none'" style="font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 100; color: #bb4444; position: absolute; right:5px">&times</span>
+            <h2 style="padding:15px">CoGs- Colourful Graphs</h2>
+            <p style="padding: 25px;">Welcome to CoGs! Cogs is a fun tool for making colourful pictures with graphs. To start, choose a graph size. This ranges from a 2x2 grid (a graph from the coordinates -1,-1 to 1,1) to a 30x30 grid (a graph from the coordinates -15,-15 to 15,15). Then, choose a function to graph. This can be any function that can be graphed on a cartesian plane. Then, choose the colours for the true and false values. Finally, click "Let's Go!" and watch the magic happen! What this tool does is pick a random square on the grid and colours that square the <span style="color:#44bb44">TRUE</span> colour if the function lies on that square, and the <span style="color:#bb4444">FALSE</span> colour if the function does not lie on that square. This is repeated until the whole grid is coloured. This tool is a fun way to visualise functions and to create colourful pictures. Enjoy!</p>
+            <p style="padding: 25px;">Here are some operations you can input</p>
+            <ul style="position: relative; left: 15px; top: -8px;">
+                <li>Basic operations: +, -, *, /(addition, subtraction, multiplication, division</li>
+                <li>Exponents: ** (repeated multiplication)</li>
+                <li>Trigonometric functions: Math.sin, Math.cos, Math.tan, Math.asin, Math.acos, Math.atan(sine, cosine, tangent, arcsin, arccosine, arctangent)</li>
+                <li>Logarithms: Math.log (logorithim)</li>
+                <li>Constants: Math.E, Math.PI(e, &#960;)</li>
+                <li>Brackets: (, ) ()</li>
+                <li>See more <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties">here</a></li>
+            </ul>
+            <p style="padding: 25px;">Press &#9650; to re-open this screen</p>
+        </div>
+    </div>
+</body>
+
+</html>
