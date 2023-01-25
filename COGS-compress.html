@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>CoGs - Colouful Graphs</title>
+    <link rel="icon" type="image/x-icon" href=":favicon.ico">
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
+    <script>
+        function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
+document.addEventListener('keydown', function (event) {
+    keydown = event.key;
+    if(keydown == "ArrowUp"){
+        document.getElementById("modal").style.display = "block";
+    }
+});
+avabGrid = [];
+var x = 0
+var y = 0
+var goTime = false;
+var didGo = false;
+var chosenCell = [0,0];
+var collision = false;
+var pressGo = false;
+var random = 0;
+var chosenLeft = 0;
+var functime = false;
+function resRun() {
+    if (!didGo){
+    avabGrid = [];
+    document.getElementById("GO").style.background = "#44bb44"
+    goTime = true;
+    document.getElementById("resout").value = document.getElementById("resolution").value;
+    document.getElementById("gridCells").innerHTML = "";
+    var grid = "";
+    var coords = "";
+    cellDist = (parseFloat(document.getElementById("grid").getBoundingClientRect().width) - 1.3) / document.getElementById("resolution").value - 1.3;
+    for (var i = document.getElementById("resolution").value * -0.5; i <= (document.getElementById("resolution").value - 1) * 0.5; i++) {
+        for (var j = document.getElementById("resolution").value * -0.5; j <= (document.getElementById("resolution").value - 1) * 0.5; j++) {
+            if ((i == 0) && !(j == 0)) {
+                coords = coords.concat(("<p style='font-size:8px; top:"+((j + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3)-1.3 - 9)+"px; left:" + ((i + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3)-3)+ "px;color: #000; position: absolute;'>")+((0-j) + "</p>")+"\n")
+            }
+            else if ((j == 0) && !(i == 0)) {
+                coords = coords.concat(("<p style='font-size:8px; top:"+((j + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3)-1.3 - 9)+"px; left:" + ((i + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3)-3)+ "px;color: #000; position: absolute;'>")+(i + "</p>")+"\n")
+            }
+            else if ((i == 0) && (j == 0)) {
+                coords = coords.concat(("<p style='font-size:8px; top:"+((j + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3)-1.3 - 9)+"px; left:" + ((i + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3)-3)+ "px;color: #000; position: absolute;'>")+(0 + "</p>")+"\n")
+            }
+            if((i< document.getElementById("resolution").value * 0.5)&&(j < document.getElementById("resolution").value * 0.5))
+            grid = grid.concat("<div id='" + (i + ',') + (0-j) + "'style='left:" + (((i + document.getElementById("resolution").value * 0.5)) * (cellDist + 1.3) + 1.3) + "px;top:" + ((j + document.getElementById("resolution").value * 0.5) * (cellDist + 1.3) + 1.3) + "px; position: absolute; background: #FFFFFF; width:" + cellDist + "px; height:" + cellDist + "px; border: 0px #000 solid;'></div>\n");
+            avabGrid.push([(i),(0-j)]);
+        }
+    }
+    document.getElementById("gridCells").innerHTML = grid;
+    document.getElementById("coords").innerHTML = coords;
+}else{
+    document.getElementById("resolution").value = document.getElementById("resout").value
+}
+}
+function parse(str) {
+    return Function(`'use strict'; return (${str})`)()
+}
+setInterval(() => {
+    document.getElementById("dot").style.background = document.getElementById("colour1").value;
+    document.getElementById("dot").style.borderColor = ("rgb("+oppositeRGB(document.getElementById("colour1").value)+")");
+    if (avabGrid.length < 1 && (didGo&& !goTime)){
+        document.getElementById("sideContent").innerHTML = ""
+    }
+    if (isValidMathExpression(document.getElementById("function").value)){
+        document.getElementById("function").style.background = "#bbffbb";
+        functime = true;
+    }else{
+        document.getElementById("function").style.background = "#ffbbbb";
+        functime = false;
+    }
+    if(goTime && functime){
+        document.getElementById("GO").style.background = "#44bb44"
+    }else{
+        document.getElementById("GO").style.background = "#66dd66"
+    }
+}, 1);
+function go(){
+    if(goTime){
+    document.getElementById("GO").style.background = "#66dd66"
+    document.getElementById("dot").style.display = "block";
+    goTime = false;
+    pressGo = true;
+    collision = false;
+    random = getRandomInt(0, avabGrid.length);
+    chosenCell = avabGrid[random];
+    avabGrid.splice(random, 1);
+    didGo = true;
+    var Canvas = document.getElementById('graph');
+    var ctx = Canvas.getContext("2d");
+    Canvas.strokeStyle = document.getElementById("colour1").value;
+    Canvas.width = 1600;
+    Canvas.height = 1600;
+    ctx.clearRect(0, 0, Canvas.width, Canvas.height);
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = document.getElementById("colour1").value;
+    if(isValidMathExpression(document.getElementById("function").value)){
+    x  = ((0 - 5000)/10000)*document.getElementById("resolution").value;
+    y = parse(document.getElementById("function").value);
+    document.getElementById(chosenCell[0]+','+chosenCell[1]).style.background = "#000000"
+    setTimeout(() => {
+        document.getElementById(chosenCell[0]+','+chosenCell[1]).style.background = "#fff"
+    
+    for (i = 0; i < 10000; i++){
+        ctx.beginPath();
+        ctx.moveTo((x+document.getElementById("resolution").value/2)/document.getElementById("resolution").value*Canvas.width,((0 - y)+document.getElementById("resolution").value/2)/document.getElementById("resolution").value*Canvas.height);
+        x  = ((i - 5000)/1000)*document.getElementById("resolution").value;
+        y = parse(document.getElementById("function").value);
+        ctx.lineTo((x+document.getElementById("resolution").value/2)/document.getElementById("resolution").value*Canvas.width,((0 - y)+document.getElementById("resolution").value/2)/document.getElementById("resolution").value*Canvas.height);
+        ctx.stroke();
+    }
+    var i = (0 - 500);
+    var moveDot = setInterval(() => {
+        x = i/1000 * parseInt(document.getElementById("resolution").value);
+        y = 0 -(parse(document.getElementById("function").value));
+        if(((x > chosenCell[0])&&(x < chosenCell[0]+1))&&(((0-y) > chosenCell[1]-1)&&((0-y) < chosenCell[1]))){
+            collision = true;
+            document.getElementById(chosenCell[0]+','+chosenCell[1]).style.background = document.getElementById("colour1").value;
+        }
+        document.getElementById("dot").style.left = (((x+document.getElementById("resolution").value * 0.5)/document.getElementById("resolution").value * parseFloat(document.getElementById("grid").getBoundingClientRect().width))- (document.getElementById("dot").getBoundingClientRect().width/2)-1) + "px";
+        document.getElementById("dot").style.top = (((y+document.getElementById("resolution").value * 0.5)/document.getElementById("resolution").value * parseFloat(document.getElementById("grid").getBoundingClientRect().width))- (document.getElementById("dot").getBoundingClientRect().width/2)-1) + "px";
+        if((x >= chosenCell[0]+1)&&(!collision)){
+            document.getElementById(chosenCell[0]+','+chosenCell[1]).style.background = document.getElementById("colour2").value;
+        }
+        i++;
+    },0.00000000001);
+    setTimeout(() => {
+        document.getElementById("GO").style.background = "#44bb44"
+        goTime = true;
+        clearInterval(moveDot);
+        ctx.clearRect(0, 0, Canvas.width, Canvas.height);
+        document.getElementById("dot").style.display = "none";
+    }, 5000);
+}, 200);
+}else{
+    document.getElementById("GO").style.background = "#44bb44"
+    goTime = true;
+    clearInterval(moveDot);
+    ctx.clearRect(0, 0, Canvas.width, Canvas.height);
+    document.getElementById("dot").style.display = "none"; 
+}}
+}
+function oppositeRGB(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    /*return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;*/
+    return ([255-(parseInt(result[1], 16)),255-(parseInt(result[2], 16)),255-(parseInt(result[3], 16))]);
+  }
+function isValidMathExpression(expr){
+        try{
+            x = getRandomInt(0,document.getElementById("resolution").value)+1/2;
+            math.parse(expr);
+            return typeof parse(expr) == "number";
+        }
+        catch(ex){
+            return false;
+        }
+    }
+    </script>
+    <style>#screen {
+        width: 100vw;
+        height: 100vh;
+    }
+    
+    #sidebar {
+        width: calc(100vw - 100vh);
+        height: 100vh;
+        background: linear-gradient(180deg, #8888 -30%, #fff 20%);
+        position: absolute;
+        left: 0px;
+        top: 0px;
+    }
+    
+    body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0px;
+    }
+    
+    #graph {
+        position: relative;
+        left: 0px;
+        top: 0px;
+        width: 100vh;
+        height: 100vh;
+        background: none;
+        image-resolution: 1000dpi;
+    }
+    
+    #resolution {
+        border: #000 2px solid;
+        border-radius: 15px;
+        color: #000;
+        width: calc((100vw - 100vh) - 45px);
+        height: calc((10vw - 10vh) - 30px);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: larger;
+        position: relative;
+        left: 15px;
+        top: 15px;
+        vertical-align: baseline;
+    }
+    
+    ::placeholder {
+        -webkit-text-security: none;
+        color: black;
+        pointer-events: none;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: larger;
+    }
+    
+    #logobar {
+        height: 10vh;
+        width: 100%;
+        background: linear-gradient(90deg, #440000 5%, #444400 17%, #004400 28%,#000044 37%, #444444 43%,#ffffff 43%)
+    }
+    
+    html {
+        font-family: Arial, Helvetica, sans-serif;
+        overflow: hidden;
+    }
+    
+    #functionBorder {
+        border-radius: 15px;
+        color: #000;
+        width: calc((100vw - 100vh) - 45px);
+        height: calc((10vw - 10vh) - 30px);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 35px;
+        position: relative;
+        left: 15px;
+        top: -100px;
+    }
+    
+    #function {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 35px;
+        position: relative;
+        left: 0px;
+        height: 35px;
+        width: calc((100vw - 100vh) - 120px);
+        background: none;
+        border-radius: 10px;
+    }
+    
+    #grid {
+        position: absolute;
+        left: calc(100vw - 100vh);
+        top: 0px;
+        width: 100vh;
+        height: 100vh;
+        background: linear-gradient(350deg, hsl(40, 80%, 63%) 0%, hsl(80,80%,63%) 100%);
+    }
+    
+    #gridCells {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100vh;
+        height: 100vh;
+    }
+    #dot {
+        position: absolute;
+        width:15px;
+        height:15px;
+        background-color: #000;
+        bottom:0px;
+        left:0px;
+        border-radius: 50%;
+        border: 2px #fff solid;
+    }
+    #GO {
+        border-radius: 15px;
+        color: #000;
+        width: calc((100vw - 100vh) - 45px);
+        height: calc((20vw - 20vh) - 30px);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 35px;
+        position: relative;
+        left: 15px;
+        top: -50px;
+        border: 3px #004400 solid;
+        background: #66dd66;
+        font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900;
+        text-align: center;
+    
+    }
+    #modal{
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        width: calc(100vw - 40px);
+        height: calc(100vh - 40px);
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 15px;
+        border: 5px #000 solid;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+    #coords{
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100vh;
+        height: 100vh;
+    }</style>
+</head>
+
+<body>
+    <div id="screen">
+        <div id="sidebar">
+            <div id="logobar">
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900; color: #bb4444;top:0px;position:absolute">C</span>
+                 <?xml version="1.0" encoding="utf-8" ?>	<!-- Generator: Assembly 2.4 - http://assemblyapp.co -->	<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="80" height="80" viewBox="0 0 4096.0 4096.0" style="position: relative;left:57px; top:0px">		<g id="document" transform="scale(13.653333333333334 13.653333333333334) translate(150.0 150.0)">			<path d="M29.2979,135.09 C29.1466,93.0102 29.0899,92.4349 29.0899,91.8462 C29.0899,86.8891 33.1085,82.8705 38.0656,82.8705 C41.0834,82.8705 43.7534,84.3599 45.3806,86.6436 L74.9328,116.135 C80.6543,121.844 89.9235,121.835 95.6334,116.113 L116.312,95.3913 C122.022,89.6695 122.012,80.4004 116.291,74.6907 L87.273,45.7349 C84.7098,44.1546 83.0012,41.3214 83.0012,38.0891 C83.0012,34.7417 84.8336,31.8224 87.5499,30.2793 C87.5859,30.2557 87.6222,30.2324 87.6588,30.2093 C87.8911,30.0621 88.1327,29.9362 88.3811,29.8151 C88.545,29.7359 88.7044,29.6532 88.8747,29.586 C89.1328,29.4841 89.3988,29.4013 89.6703,29.329 C89.701,29.3208 89.7312,29.3102 89.7619,29.3014 C89.7806,29.2967 89.7979,29.2882 89.8166,29.2832 C89.8383,29.2779 89.8591,29.2703 89.8807,29.265 C89.9726,29.2432 90.0616,29.2186 90.1549,29.2006 C90.6036,29.1138 91.0622,29.0624 91.5361,29.0619 L135.151,29.0165 C143.233,29.0081 149.78,22.4485 149.771,14.3655 L149.741,-14.9061 C149.732,-22.9891 143.172,-29.535 135.09,-29.5266 L93.7879,-29.4837 C93.203,-29.3638 92.5973,-29.3009 91.9769,-29.3009 C87.0198,-29.3009 83.0012,-33.3194 83.0012,-38.2766 C83.0012,-39.5564 83.2691,-40.7736 83.7518,-41.8753 C83.7603,-41.8973 83.7691,-41.9193 83.7784,-41.9412 C83.7822,-41.95 83.7834,-41.9599 83.7875,-41.9687 C83.7927,-41.981 83.8006,-41.9927 83.8059,-42.005 C83.8069,-42.0077 83.8104,-42.0093 83.8128,-42.0114 C84.397,-43.2865 85.2711,-44.401 86.3508,-45.2706 L116.135,-75.1156 C121.844,-80.8374 121.836,-90.1065 116.113,-95.8161 L95.3913,-116.495 C92.5303,-119.35 88.7785,-120.769 85.0318,-120.765 C81.2862,-120.761 77.5456,-119.334 74.6908,-116.474 L45.7444,-87.4653 C44.1707,-84.8721 41.3205,-83.1396 38.0656,-83.1396 C34.3185,-83.1396 31.1077,-85.4358 29.7634,-88.6978 C29.7009,-88.8284 29.6395,-88.9587 29.586,-89.0943 C29.478,-89.3664 29.3949,-89.6485 29.3199,-89.9356 C29.2794,-90.0916 29.2309,-90.242 29.2006,-90.4021 C29.1164,-90.8434 29.0624,-91.2985 29.0619,-91.7648 L29.0165,-135.379 C29.0081,-143.463 22.4485,-150.008 14.3655,-150 L-14.9061,-149.97 C-22.9891,-149.961 -29.535,-143.402 -29.5266,-135.319 L-29.4836,-94.0098 C-29.3524,-93.399 -29.2834,-92.7653 -29.2834,-92.1153 C-29.2834,-87.1582 -33.3019,-83.1396 -38.2591,-83.1396 C-41.016,-83.1396 -43.4825,-84.3826 -45.129,-86.3386 L-75.1615,-116.318 C-78.0222,-119.172 -81.7658,-120.592 -85.5114,-120.588 C-89.2573,-120.584 -93.0072,-119.157 -95.862,-116.296 L-116.541,-95.574 C-122.251,-89.8525 -122.241,-80.5834 -116.519,-74.8735 C-84.804,-44.2593 -83.0588,-44.7327 -83.0588,-38.1333 C-83.0588,-33.1762 -87.0774,-29.1576 -92.0345,-29.1576 L-135.379,-29.2452 C-143.463,-29.2368 -150.008,-22.6772 -150,-14.5942 L-149.97,14.6774 C-149.961,22.7604 -143.402,29.3069 -135.319,29.2979 C-93.1115,29.1618 -92.5787,29.1134 -92.0345,29.1134 C-87.0774,29.1134 -83.0588,33.1319 -83.0588,38.0891 C-83.0588,41.1957 -84.637,43.9336 -87.0355,45.5449 L-116.363,74.9328 C-122.073,80.6543 -122.063,89.9249 -116.342,95.6334 L-95.62,116.312 C-89.8982,122.022 -80.6291,122.014 -74.9194,116.291 L-46.0132,87.3226 C-44.4562,84.6595 -41.5666,82.8705 -38.2591,82.8705 C-33.9839,82.8705 -30.4068,85.8595 -29.5035,89.8617 C-29.4756,89.9581 -29.4486,90.0547 -29.4293,90.1549 C-29.3463,90.5839 -29.2957,91.022 -29.2909,91.4738 L-29.2452,135.151 C-29.2368,143.233 -22.6772,149.78 -14.5942,149.771 L14.6774,149.741 C22.7604,149.732 29.3069,143.172 29.2979,135.09 Z M32.8592,1.20731e-09 C32.8592,18.2108 18.0964,32.9736 -0.114348,32.9736 C-18.3251,32.9736 -33.0879,18.2108 -33.0879,-5.7981e-10 C-33.0879,-18.2108 -18.3251,-32.9736 -0.114348,-32.9736 C18.0964,-32.9736 32.8592,-18.2108 32.8592,1.20731e-09 Z " fill="#ffff44" fill-opacity="1.00" stroke-width="0.20" stroke="#ffffff" stroke-linecap="square" stroke-linejoin="miter" />		</g>	</svg>
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900; color: #44bb44;top:0px;position:absolute;left:138px;">G</span>
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 80px; font-weight: 900; color: #4444bb;top:0px;position:absolute;left:200px;">S</span>
+                <span
+                    style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #000;top:30px;position:absolute;left:270px;font-weight: 500;">-
+                    Colourful Graphs</span>
+            </div>
+            <div id="sideContent">
+            <span
+                style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #000;top:30px;position:relative;left:200px;font-weight: 500;">Size:
+            </span><output id="resout"
+                style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #000;top:30px;position:relative;left:200px;font-weight: 500;"></output>
+            <input type="range" id="resolution" placeholder="What resolution?" min="2" max="30" onchange="resRun()"
+                value="2" step="2">
+            <div id="colours">
+                <div id="colour1p" style="left:25px; position: relative; top:15px;">
+                    <p style="font-size: 20px;"><span style="color:#44bb44; font-weight:600;">TRUE</span> colour:</p>
+                    <input type="color" id="colour1" 
+                        style="left: 125px; position: relative; bottom: 41px;">
+                </div>
+                <div id="colour2p" style="left:200px; position: relative; top:-71px;">
+                    <p style="font-size: 20px;"><span style="color:#bb4444; font-weight:600;">FALSE</span> colour:</p>
+                    <input type="color" id="colour2" 
+                        style="left: 130px; position: relative; bottom: 41px;">
+                </div>
+
+            </div>
+            <div id="functionBorder">
+                <spam >Y=</spam>
+                <input type="text" id="function">
+            </div>
+            <div id="GO" onclick="go()">
+                LET'S GO!
+            </div>
+        </div>
+        <div id="grid">
+            <div id="gridCells"></div>
+            <canvas id="graph">
+            </canvas>
+            <div id="coords"></div>
+            <div id="dot">
+                <p id="dotx"></p>
+            </div>
+        </div>
+        <div id="modal">
+            <span id="modalclose" onclick="document.getElementById('modal').style.display='none'" style="font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 100; color: #bb4444; position: absolute; right:5px">&times</span>
+            <h2 style="padding:15px">CoGs- Colourful Graphs</h2>
+            <p style="padding: 25px;">Welcome to CoGs! Cogs is a fun tool for making colourful pictures with graphs. To start, choose a graph size. This ranges from a 2x2 grid (a graph from the coordinates -1,-1 to 1,1) to a 30x30 grid (a graph from the coordinates -15,-15 to 15,15). Then, choose a function to graph. This can be any function that can be graphed on a cartesian plane. Then, choose the colours for the true and false values. Finally, click "Let's Go!" and watch the magic happen! What this tool does is pick a random square on the grid and colours that square the <span style="color:#44bb44">TRUE</span> colour if the function lies on that square, and the <span style="color:#bb4444">FALSE</span> colour if the function does not lie on that square. This is repeated until the whole grid is coloured. This tool is a fun way to visualise functions and to create colourful pictures. Enjoy!</p>
+            <p style="padding: 25px;">Here are some operations you can input</p>
+            <ul style="position: relative; left: 15px; top: -8px;">
+                <li>Basic operations: +, -, *, /(addition, subtraction, multiplication, division</li>
+                <li>Exponents: ** (repeated multiplication)</li>
+                <li>Trigonometric functions: Math.sin, Math.cos, Math.tan, Math.asin, Math.acos, Math.atan(sine, cosine, tangent, arcsin, arccosine, arctangent)</li>
+                <li>Logarithms: Math.log (logorithim)</li>
+                <li>Constants: Math.E, Math.PI(e, &#960;)</li>
+                <li>Brackets: (, ) ()</li>
+                <li>See more <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties">here</a></li>
+            </ul>
+            <p style="padding: 25px;">Press &#9650; to re-open this screen</p>
+        </div>
+    </div>
+</body>
+
+</html>
