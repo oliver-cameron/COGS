@@ -29,6 +29,7 @@ var pressGo = false;
 var random = 0;
 var chosenLeft = 0;
 var functime = false;
+var graphing = false;
 function resRun() {
     if (!didGo){
     avabGrid = [];
@@ -70,13 +71,15 @@ setInterval(() => {
     if (avabGrid.length < 1 && (didGo&& !goTime)){
         document.getElementById("sideContent").innerHTML = ""
     }
-    if (isValidMathExpression(document.getElementById("function").value)){
-        document.getElementById("function").style.background = "#bbffbb";
-        functime = true;
-    }else{
-        document.getElementById("function").style.background = "#ffbbbb";
-        functime = false;
-    }
+if (!graphing) {
+        if (isValidMathExpression(document.getElementById("function").value)){
+            document.getElementById("function").style.background = "#bbffbb";
+            functime = true;
+        }else{
+            document.getElementById("function").style.background = "#ffbbbb";
+            functime = false;
+        }
+}
     if(goTime && functime){
         document.getElementById("GO").style.background = "#44bb44"
     }else{
@@ -103,6 +106,7 @@ function go(){
     ctx.lineWidth = 8;
     ctx.strokeStyle = document.getElementById("colour1").value;
     if(isValidMathExpression(document.getElementById("function").value)){
+    graphing=true;
     x  = ((0 - 5000)/10000)*document.getElementById("resolution").value;
     y = parse(document.getElementById("function").value);
     document.getElementById(chosenCell[0]+','+chosenCell[1]).style.background = "#000000"
@@ -117,6 +121,7 @@ function go(){
         ctx.lineTo((x+document.getElementById("resolution").value/2)/document.getElementById("resolution").value*Canvas.width,((0 - y)+document.getElementById("resolution").value/2)/document.getElementById("resolution").value*Canvas.height);
         ctx.stroke();
     }
+    graphing=false;
     var i = (0 - 500);
     var moveDot = setInterval(() => {
         x = i/1000 * parseInt(document.getElementById("resolution").value);
@@ -297,7 +302,7 @@ function isValidMathExpression(expr){
     
     }
     #modal{
-        position: absolute;
+        position: absolute ;
         left: 20px;
         top: 20px;
         width: calc(100vw - 40px);
